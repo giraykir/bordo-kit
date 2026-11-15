@@ -1,0 +1,8 @@
+{
+  "name": "Bordo Kit",
+  "short_name": "Bordo Kit",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "icons": [{ "src": "app-icon.png", "sizes": "192x192", "type": "image/png" }]
+}
