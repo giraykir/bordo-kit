@@ -1,14 +1,19 @@
-// The iPhone's web app (v1.6) keeps its own files, so it opens without a connection. The page comes from the
-// network first, so a new version arrives at the next open; the rest (built with their hash in the name) from here.
-// The library and covers are in IndexedDB, and GitHub's API never passes through here.
 const CACHE = 'bordo-kit'
-
+// access.json is the GitHub key sealed by the passcode: a new key or passcode has to reach the iPhones, so it never
+// comes from this cache (iPhone 1.0.1, 15 November 2026; before it, a cached copy kept the old one for good).
+const ACCESS = 'access.json'
 self.addEventListener('install', () => self.skipWaiting())
-self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()))
-
+self.addEventListener('activate', (e) =>
+  e.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      caches.open(CACHE).then((cache) => cache.delete(new URL(ACCESS, self.registration.scope).href)),
+    ]),
+  ),
+)
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url)
-  if (e.request.method !== 'GET' || url.origin !== location.origin) return
+  if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.endsWith('/' + ACCESS)) return
   const page = e.request.mode === 'navigate'
   e.respondWith(
     caches.open(CACHE).then(async (cache) => {
